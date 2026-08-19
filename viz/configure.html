@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stream Graph Settings</title>
+  <script src="lib/tableau.extensions.1.latest.js" defer></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="dialog">
+  <div id="dialogApp">
+    <h1>Stream Graph Settings</h1>
+
+    <label class="field">
+      <span>Curve smoothing</span>
+      <select id="curveStyle">
+        <option value="basis">Smooth (basis)</option>
+        <option value="natural">Natural</option>
+        <option value="step">Step</option>
+        <option value="linear">Straight lines</option>
+      </select>
+    </label>
+
+    <p class="hint">
+      Date, Category, and Measure are set on the Marks card in Tableau (drag pills onto
+      the Date / Category / Measure boxes) — this dialog only controls how the stream
+      is drawn.
+    </p>
+
+    <div class="dialogButtons">
+      <button id="cancelBtn" class="secondary">Cancel</button>
+      <button id="okBtn" class="primary">Save</button>
+    </div>
+  </div>
+  <script src="configure.js" defer></script>
+</body>
+</html>

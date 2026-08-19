@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stream Graph (Viz Extension)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Self-hosted, same reason as the dashboard-extension build: external CDNs were
+       unreachable from your network, so both libraries ship inside this repo. -->
+  <script src="lib/tableau.extensions.1.latest.js" defer
+    onerror="window.__scriptLoadError='lib/tableau.extensions.1.latest.js failed to load — check it was uploaded to GitHub alongside index.html.'"></script>
+  <script src="lib/d3.min.js" defer
+    onerror="window.__scriptLoadError='lib/d3.min.js failed to load — check it was uploaded to GitHub alongside index.html.'"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="toolbar">
+      <span id="title">Stream Graph</span>
+      <button id="configureBtn" title="Curve style">&#9881;</button>
+    </div>
+    <div id="chartWrap">
+      <svg id="chart"></svg>
+      <div id="tooltip" class="tooltip" hidden></div>
+      <div id="legend"></div>
+    </div>
+    <div id="emptyState">
+      <p id="emptyStateMessage">Drag a date field, a category field, and a measure onto the Date / Category / Measure boxes on the Marks card to draw the stream.</p>
+    </div>
+  </div>
+  <script src="main.js" defer></script>
+</body>
+</html>
