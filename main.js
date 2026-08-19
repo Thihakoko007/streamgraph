@@ -290,31 +290,34 @@
 
   // initializeAsync() only resolves when a real Tableau host answers its handshake.
   // Opened standalone (e.g. double-clicked as a file, or the host is unreachable), it
-  // just hangs forever with no error — which used to leave a blank white page. Race it
-  // against a timeout so there's always a visible, honest status instead of nothing.
-  var settled = false;
+  // just hangs forever with no error — which used to leave a blank white page. Show a
+  // "still connecting" status if it's taking a while, but — important — never stop
+  // waiting for the real promise. A slow-but-real Tableau handshake (fetching the API
+  // script fresh, establishing the session) must still be allowed to succeed late and
+  // take over from the timeout message; abandoning it here is what silently broke the
+  // Configure button last time (it kept calling into an extension object that had, in
+  // fact, gone on to initialize a few seconds after we'd already given up on it).
+  var initResolved = false;
   var initTimeout = setTimeout(function () {
-    if (settled) return;
-    settled = true;
+    if (initResolved) return;
     showEmptyState(
       true,
-      "This isn't running inside Tableau, so there's no dashboard to read data from. " +
-        "That's expected if you just opened this file directly in a browser — add it " +
-        "to a dashboard via the Extension object in Tableau Desktop to see it live."
+      "Still connecting to Tableau… If this doesn't change in a few seconds, either this " +
+        "file was opened outside Tableau (expected — add it via the Extension object on a " +
+        "dashboard to see it live), or Tableau can't reach tableau.github.io / your GitHub " +
+        "Pages URL right now (check your network or firewall)."
     );
-  }, 4000);
+  }, 8000);
 
   tableau.extensions
     .initializeAsync({ configure: configure })
     .then(function () {
-      if (settled) return;
-      settled = true;
+      initResolved = true;
       clearTimeout(initTimeout);
       bindWorksheetAndRender();
     })
     .catch(function (err) {
-      if (settled) return;
-      settled = true;
+      initResolved = true;
       clearTimeout(initTimeout);
       showEmptyState(true, "Failed to initialize: " + (err && err.message ? err.message : err));
     });
