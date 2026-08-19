@@ -1,12 +1,41 @@
 (function () {
   "use strict";
 
-  var svg = d3.select("#chart");
-  var tooltip = document.getElementById("tooltip");
-  var legendEl = document.getElementById("legend");
   var emptyState = document.getElementById("emptyState");
   var emptyStateMessage = document.getElementById("emptyStateMessage");
   var chartWrap = document.getElementById("chartWrap");
+
+  // Surface anything that goes wrong directly on screen. Tableau's embedded extension
+  // webview isn't easy to open devtools on, so a silent console-only error is as good
+  // as invisible — show it in the empty-state pane instead.
+  function showFatalError(message) {
+    if (emptyStateMessage) emptyStateMessage.textContent = message;
+    if (emptyState) emptyState.classList.add("visible");
+    if (chartWrap) chartWrap.style.display = "none";
+    var btn = document.getElementById("emptyConfigureBtn");
+    if (btn) btn.style.display = "none";
+  }
+
+  window.addEventListener("error", function (e) {
+    showFatalError("Script error: " + (e && e.message ? e.message : "unknown error") + (e && e.filename ? " (" + e.filename.split("/").pop() + ":" + e.lineno + ")" : ""));
+  });
+
+  if (window.__scriptLoadError) {
+    showFatalError(window.__scriptLoadError);
+    return;
+  }
+  if (typeof d3 === "undefined") {
+    showFatalError("D3 didn't load (window.d3 is undefined), but no script error fired — check the network tab for cdn.jsdelivr.net.");
+    return;
+  }
+  if (typeof tableau === "undefined") {
+    showFatalError("The Tableau Extensions API didn't load (window.tableau is undefined), but no script error fired — check the network tab for tableau.github.io.");
+    return;
+  }
+
+  var svg = d3.select("#chart");
+  var tooltip = document.getElementById("tooltip");
+  var legendEl = document.getElementById("legend");
   var configureBtn = document.getElementById("configureBtn");
   var emptyConfigureBtn = document.getElementById("emptyConfigureBtn");
 
@@ -38,18 +67,21 @@
   }
 
   function configure() {
-    tableau.extensions.ui
-      .displayDialogAsync(DIALOG_URL, "", { height: 560, width: 480 })
-      .then(function (closePayload) {
-        if (closePayload === "saved") {
-          bindWorksheetAndRender();
-        }
-      })
-      .catch(function (error) {
-        if (error.errorCode !== tableau.ErrorCodes.DialogClosedByUser) {
-          console.error(error.message);
-        }
-      });
+    try {
+      tableau.extensions.ui
+        .displayDialogAsync(DIALOG_URL, "", { height: 560, width: 480 })
+        .then(function (closePayload) {
+          if (closePayload === "saved") {
+            bindWorksheetAndRender();
+          }
+        })
+        .catch(function (error) {
+          if (error && error.errorCode === tableau.ErrorCodes.DialogClosedByUser) return;
+          showEmptyState(true, "Couldn't open the Configure dialog: " + (error && error.message ? error.message : error));
+        });
+    } catch (err) {
+      showEmptyState(true, "Configure failed before it could open a dialog: " + err.message);
+    }
   }
 
   configureBtn.addEventListener("click", configure);
@@ -309,16 +341,22 @@
     );
   }, 8000);
 
-  tableau.extensions
-    .initializeAsync({ configure: configure })
-    .then(function () {
-      initResolved = true;
-      clearTimeout(initTimeout);
-      bindWorksheetAndRender();
-    })
-    .catch(function (err) {
-      initResolved = true;
-      clearTimeout(initTimeout);
-      showEmptyState(true, "Failed to initialize: " + (err && err.message ? err.message : err));
-    });
+  try {
+    tableau.extensions
+      .initializeAsync({ configure: configure })
+      .then(function () {
+        initResolved = true;
+        clearTimeout(initTimeout);
+        bindWorksheetAndRender();
+      })
+      .catch(function (err) {
+        initResolved = true;
+        clearTimeout(initTimeout);
+        showEmptyState(true, "Failed to initialize: " + (err && err.message ? err.message : err));
+      });
+  } catch (err) {
+    initResolved = true;
+    clearTimeout(initTimeout);
+    showEmptyState(true, "initializeAsync threw synchronously: " + err.message);
+  }
 })();
