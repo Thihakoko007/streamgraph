@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stream Graph</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://tableau.github.io/extensions-api/lib/tableau.extensions.1.latest.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js" defer></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="toolbar">
+      <span id="title">Stream Graph</span>
+      <button id="configureBtn" title="Configure">&#9881;</button>
+    </div>
+    <div id="chartWrap">
+      <svg id="chart"></svg>
+      <div id="tooltip" class="tooltip" hidden></div>
+      <div id="legend"></div>
+    </div>
+    <div id="emptyState">
+      <p id="emptyStateMessage">Pick a worksheet and three fields (date, category, measure) to draw the stream.</p>
+      <button id="emptyConfigureBtn">Configure this extension</button>
+    </div>
+  </div>
+  <script src="main.js" defer></script>
+</body>
+</html>

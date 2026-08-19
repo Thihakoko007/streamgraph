@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Configure Stream Graph</title>
+  <script src="https://tableau.github.io/extensions-api/lib/tableau.extensions.1.latest.js" defer></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="dialog">
+  <div id="dialogApp">
+    <h1>Configure Stream Graph</h1>
+
+    <label class="field">
+      <span>Worksheet</span>
+      <select id="worksheetSelect"></select>
+    </label>
+
+    <label class="field">
+      <span>Date / period field</span>
+      <select id="dateField"></select>
+    </label>
+
+    <label class="field">
+      <span>Category field (one stream band per value)</span>
+      <select id="categoryField"></select>
+    </label>
+
+    <label class="field">
+      <span>Measure field</span>
+      <select id="measureField"></select>
+    </label>
+
+    <label class="field">
+      <span>Curve smoothing</span>
+      <select id="curveStyle">
+        <option value="basis">Smooth (basis)</option>
+        <option value="natural">Natural</option>
+        <option value="step">Step</option>
+        <option value="linear">Straight lines</option>
+      </select>
+    </label>
+
+    <p class="hint">
+      Data comes from the worksheet's summary data, grouped by the date and category
+      fields you pick, aggregated on the measure field. Filters and dashboard actions
+      applied to that worksheet will flow through automatically.
+    </p>
+
+    <div class="dialogButtons">
+      <button id="cancelBtn" class="secondary">Cancel</button>
+      <button id="okBtn" class="primary">Save</button>
+    </div>
+  </div>
+  <script src="configure.js" defer></script>
+</body>
+</html>
